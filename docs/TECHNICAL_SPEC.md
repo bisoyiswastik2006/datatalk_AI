@@ -32,14 +32,15 @@ src/
 └── main.tsx                 # Entrypoint
 ```
 
-## 3. Design Tokens & Theme Rules
-- **Primary Color:** `#3368A0` (Active states, primary buttons, links, key series, focus rings).
-- **Secondary Color:** `#66A3BF` (Secondary chart series, hover states, active borders, icons). **Rule: Never use #66A3BF for text on light backgrounds.**
-- **Tint:** `#C8DFDB` (Assistant panel background, selected rows, subtle fills).
-- **Surface:** `#F2EFE7` (Page background, cards, table backgrounds).
-- **Ink:** `#14283D` (Primary body text, headings).
-- **Ink Muted:** `#4A5F73` (Captions, table headers, subtitles).
-- **Status Colors:** Muted red (`#A62626`), muted amber (`#996000`), muted green (`#1B6A3B`) with accessible backgrounds.
+## 3. Design Tokens & Theme Rules (Light & Dark Mode)
+- **Palette:** `#00B8FC`, `#0058FD`, `#FFFF00`, `#FF0000`, `#FD3500`, `#000000`.
+- **Primary:** `#0058FD` (light mode, white text) / `#00B8FC` (dark mode, black text).
+- **Warning:** `#FFFF00` (warnings only, always black text and warning icon).
+- **Error:** `#FF0000` (always with icon and text label).
+- **Destructive / SQL Rejected / Timeout:** `#FD3500`.
+- **Neutrals (Light):** Page `#F5F7FA`, cards `#FFFFFF`, borders `#D9DEE7`, main text `#000000`, secondary text `#4A5361`.
+- **Neutrals (Dark):** Page `#000000`, cards `#0F1115`, borders `#232833`, main text `#FFFFFF`, secondary text `#A8B0BD`.
+- **Theme Toggle:** Sun/Moon toggle at the right end of the top bar; respects system preference, saves to localStorage, pre-paint execution.
 - **Typography:** Nohemi (`@font-face`) fallback: `"Nohemi", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`. Monospace for code/SQL.
 - **No Emoji Rule:** Zero emoji across all UI, text, logs, code, and comments. Use Lucide icons only.
 
@@ -62,7 +63,7 @@ src/
 ## 5. Viewport & Accessibility Requirements
 - Designed to fit 1440x900 viewport without page-level scrolling.
 - Internal scrolling for tables (`custom-scrollbar`) and assistant chat thread.
-- Keyboard accessible: Tab navigation, visible 2px `#3368A0` focus rings, Enter to send query, Escape to dismiss modals.
+- Keyboard accessible: Tab navigation, visible 2px primary focus rings, Enter to send query, Escape to dismiss modals.
 - Respects `prefers-reduced-motion`.
 - WCAG AA contrast throughout.
 

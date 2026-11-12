@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileSpreadsheet, Check, Trash2, Plus } from 'lucide-react';
+import { Database, FileSpreadsheet, Check, Trash2, Upload, AlertCircle } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
@@ -10,8 +10,8 @@ export interface DatasetSwitcherProps {
   onClose: () => void;
   datasets: DatasetDetail[];
   activeDatasetId?: string | null;
-  onSelectDataset: (datasetId: string) => void;
-  onDeleteDataset?: (datasetId: string) => void;
+  onSelectDataset: (id: string) => void;
+  onDeleteDataset?: (id: string) => void;
   onOpenUpload?: () => void;
 }
 
@@ -25,68 +25,64 @@ export const DatasetSwitcher: React.FC<DatasetSwitcherProps> = ({
   onOpenUpload,
 }) => {
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Switch Active Dataset"
-      description="Select an existing dataset or upload a new one to query against."
-      maxWidth="lg"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title="Switch active dataset" maxWidth="lg">
       <div className="space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-tint">
-          <span className="text-xs font-mono uppercase text-ink-muted">
-            Available Datasets ({datasets.length})
-          </span>
-          {onOpenUpload && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                onClose();
-                onOpenUpload();
-              }}
-              icon={<Plus className="w-3.5 h-3.5" />}
-            >
-              Upload new
-            </Button>
-          )}
-        </div>
+        <p className="text-body text-secondary leading-relaxed">
+          Switching datasets resets the current query session, table views, and visualizations to prevent stale context.
+        </p>
 
-        <div className="space-y-2.5 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
-          {datasets.map((dataset) => {
-            const isActive = activeDatasetId === dataset.id;
+        {/* Dataset list */}
+        <div className="space-y-2.5 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+          {datasets.map((ds) => {
+            const isActive = ds.id === activeDatasetId;
             return (
               <div
-                key={dataset.id}
-                className={`p-3.5 rounded-lg border transition-all flex items-center justify-between gap-3 ${
+                key={ds.id}
+                onClick={() => {
+                  if (!isActive) {
+                    onSelectDataset(ds.id);
+                    onClose();
+                  }
+                }}
+                className={`p-4 rounded-lg border transition-colors cursor-pointer flex items-center justify-between min-h-[72px] ${
                   isActive
-                    ? 'border-primary bg-tint/30 shadow-subtle'
-                    : 'border-tint bg-surface hover:border-secondary hover:bg-tint/10'
+                    ? 'border-primary bg-primary-tint'
+                    : 'border-border bg-card hover:border-primary'
                 }`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isActive}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded bg-tint/50 border border-tint flex items-center justify-center shrink-0 text-primary">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                      isActive
+                        ? 'bg-primary text-primary-text'
+                        : 'bg-page border border-border text-secondary'
+                    }`}
+                  >
                     <FileSpreadsheet className="w-5 h-5" aria-hidden="true" />
                   </div>
 
-                  <div className="min-w-0 space-y-0.5">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm font-semibold text-ink truncate">
-                        {dataset.name}
+                      <span className="font-semibold text-control text-main truncate font-mono">
+                        {ds.name}
                       </span>
-                      <Badge variant="outline" size="sm" className="font-mono uppercase text-[10px]">
-                        {dataset.format}
-                      </Badge>
+                      {isActive && (
+                        <Badge variant="primary" size="sm">
+                          Active
+                        </Badge>
+                      )}
                     </div>
-
-                    <div className="text-xs text-ink-muted flex items-center gap-2">
-                      <span>{dataset.total_rows.toLocaleString()} rows</span>
-                      <span>|</span>
-                      <span>{dataset.tables.length} {dataset.tables.length === 1 ? 'table' : 'tables'}</span>
-                      {dataset.formatted_size && (
+                    <div className="flex items-center gap-2 text-caption text-secondary mt-0.5">
+                      <span>{ds.format.toUpperCase()}</span>
+                      <span>·</span>
+                      <span>{ds.formatted_size || 'In-memory'}</span>
+                      {ds.total_rows !== undefined && (
                         <>
-                          <span>|</span>
-                          <span className="font-mono">{dataset.formatted_size}</span>
+                          <span>·</span>
+                          <span>{ds.total_rows.toLocaleString()} rows</span>
                         </>
                       )}
                     </div>
@@ -95,16 +91,17 @@ export const DatasetSwitcher: React.FC<DatasetSwitcherProps> = ({
 
                 <div className="flex items-center gap-2 shrink-0">
                   {isActive ? (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-primary px-2.5 py-1 rounded bg-tint/50">
-                      <Check className="w-3.5 h-3.5" aria-hidden="true" />
-                      Active
+                    <span className="text-caption text-primary font-medium flex items-center gap-1">
+                      <Check className="w-4 h-4" />
+                      Loaded
                     </span>
                   ) : (
                     <Button
-                      variant="secondary"
+                      variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        onSelectDataset(dataset.id);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectDataset(ds.id);
                         onClose();
                       }}
                     >
@@ -114,12 +111,15 @@ export const DatasetSwitcher: React.FC<DatasetSwitcherProps> = ({
 
                   {onDeleteDataset && !isActive && (
                     <button
-                      onClick={() => onDeleteDataset(dataset.id)}
-                      className="p-1.5 rounded text-ink-muted hover:text-status-error hover:bg-status-error-bg transition-colors"
-                      title="Delete dataset"
-                      aria-label={`Delete ${dataset.name}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteDataset(ds.id);
+                      }}
+                      className="w-10 h-10 flex items-center justify-center rounded-lg text-secondary hover:text-destructive hover:bg-page transition-colors cursor-pointer"
+                      title={`Remove ${ds.name}`}
+                      aria-label={`Remove dataset ${ds.name}`}
                     >
-                      <Trash2 className="w-4 h-4" aria-hidden="true" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -128,10 +128,38 @@ export const DatasetSwitcher: React.FC<DatasetSwitcherProps> = ({
           })}
 
           {datasets.length === 0 && (
-            <div className="py-8 text-center text-sm text-ink-muted">
-              No datasets loaded yet. Upload a CSV, Excel, or SQLite file to begin.
+            <div className="py-8 text-center text-body text-secondary border border-dashed border-border rounded-lg bg-page">
+              <Database className="w-8 h-8 mx-auto mb-2 text-secondary opacity-50" />
+              <span>No datasets currently registered.</span>
             </div>
           )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="pt-3 border-t border-border flex items-center justify-between">
+          <div className="text-caption text-secondary flex items-center gap-1.5">
+            <AlertCircle className="w-4 h-4 text-primary shrink-0" />
+            <span>DuckDB in-memory session</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="md" onClick={onClose}>
+              Close
+            </Button>
+            {onOpenUpload && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  onClose();
+                  onOpenUpload();
+                }}
+                icon={<Upload className="w-4 h-4" />}
+              >
+                Upload new
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

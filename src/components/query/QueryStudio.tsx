@@ -15,7 +15,7 @@ export const QueryStudio: React.FC<QueryStudioProps> = ({ queryResponse }) => {
   const hasSql = Boolean(queryResponse.sql);
 
   return (
-    <div className="flex flex-col h-full space-y-5 pb-6">
+    <div className="flex flex-col h-full space-y-4 pb-2">
       {/* Synthesized Answer */}
       <SynthesizedAnswer response={queryResponse} />
 
@@ -30,9 +30,9 @@ export const QueryStudio: React.FC<QueryStudioProps> = ({ queryResponse }) => {
 
       {/* Results and Visualization Split */}
       {hasResults && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[340px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[320px]">
           {/* Query Results Table */}
-          <div className="h-full min-h-[300px]">
+          <div className="h-full min-h-[280px]">
             <ResultTable
               columns={queryResponse.columns || []}
               rows={queryResponse.rows || []}
@@ -42,7 +42,7 @@ export const QueryStudio: React.FC<QueryStudioProps> = ({ queryResponse }) => {
           </div>
 
           {/* Plotly Chart Panel */}
-          <div className="h-full min-h-[300px]">
+          <div className="h-full min-h-[280px]">
             <ChartPanel
               columns={queryResponse.columns || []}
               rows={queryResponse.rows || []}
@@ -59,4 +59,3 @@ export const QueryStudio: React.FC<QueryStudioProps> = ({ queryResponse }) => {
     </div>
   );
 };
-

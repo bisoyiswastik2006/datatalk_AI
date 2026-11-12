@@ -56,7 +56,7 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'uploading':
       return (
         <StateView
-          icon={<UploadCloud className="w-7 h-7 animate-bounce" aria-hidden="true" />}
+          icon={<UploadCloud className="w-8 h-8 text-primary animate-bounce" aria-hidden="true" />}
           badgeText="Uploading"
           badgeVariant="primary"
           title="Uploading dataset"
@@ -69,8 +69,8 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'validation_failed':
       return (
         <StateView
-          icon={<FileX2 className="w-7 h-7 text-status-error" aria-hidden="true" />}
-          badgeText="Validation Error"
+          icon={<FileX2 className="w-8 h-8 text-error" aria-hidden="true" />}
+          badgeText="Validation error"
           badgeVariant="error"
           title="File validation failed"
           description={
@@ -86,9 +86,9 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'processing':
       return (
         <StateView
-          icon={<RefreshCw className="w-7 h-7 animate-spin text-primary" aria-hidden="true" />}
+          icon={<RefreshCw className="w-8 h-8 animate-spin text-primary" aria-hidden="true" />}
           badgeText="Processing"
-          badgeVariant="tint"
+          badgeVariant="outline"
           title="Analyzing schema & registering tables"
           description="Inferring column datatypes, counting distinct values, validating row delimiters, and creating temporary query views."
         />
@@ -97,7 +97,7 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'generating_sql':
       return (
         <StateView
-          icon={<Sparkles className="w-7 h-7 text-primary animate-pulse" aria-hidden="true" />}
+          icon={<Sparkles className="w-8 h-8 text-primary animate-pulse" aria-hidden="true" />}
           badgeText="Synthesizing"
           badgeVariant="primary"
           title="Generating analytical query"
@@ -108,9 +108,9 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'executing':
       return (
         <StateView
-          icon={<Terminal className="w-7 h-7 text-primary" aria-hidden="true" />}
+          icon={<Terminal className="w-8 h-8 text-primary" aria-hidden="true" />}
           badgeText="Executing"
-          badgeVariant="tint"
+          badgeVariant="outline"
           title="Running query on database engine"
           description="Scanning tables, applying filters, aggregating metrics, and formatting tabular result sets."
         />
@@ -119,8 +119,8 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'not_answerable':
       return (
         <StateView
-          icon={<HelpCircle className="w-7 h-7 text-ink-muted" aria-hidden="true" />}
-          badgeText="Out of Scope"
+          icon={<HelpCircle className="w-8 h-8 text-main" aria-hidden="true" />}
+          badgeText="Out of scope"
           badgeVariant="warning"
           title="Question cannot be answered from schema"
           description={
@@ -130,15 +130,15 @@ export const StateContainer: React.FC<StateContainerProps> = ({
           details={
             suggestedAlternatives.length > 0 ? (
               <div className="space-y-2 mt-2">
-                <span className="text-[11px] font-mono text-ink-muted uppercase tracking-wider block">
-                  Recommended Questions:
+                <span className="text-caption font-medium text-secondary block">
+                  Recommended questions:
                 </span>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {suggestedAlternatives.map((alt, idx) => (
                     <button
                       key={idx}
                       onClick={() => onSelectOption && onSelectOption(alt)}
-                      className="w-full text-left p-2.5 rounded bg-surface border border-tint hover:border-secondary text-xs text-ink transition-colors cursor-pointer"
+                      className="w-full text-left min-h-[42px] p-3 rounded-lg bg-page border border-border hover:border-primary text-control text-main transition-colors cursor-pointer"
                     >
                       {alt}
                     </button>
@@ -155,9 +155,9 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'needs_clarification':
       return (
         <StateView
-          icon={<GitFork className="w-7 h-7 text-secondary" aria-hidden="true" />}
-          badgeText="Ambiguity Detected"
-          badgeVariant="warning"
+          icon={<GitFork className="w-8 h-8 text-primary" aria-hidden="true" />}
+          badgeText="Ambiguity detected"
+          badgeVariant="outline"
           title="Clarification needed"
           description={
             errorMessage ||
@@ -166,12 +166,12 @@ export const StateContainer: React.FC<StateContainerProps> = ({
           details={
             clarificationOptions.length > 0 ? (
               <div className="space-y-2 mt-2">
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {clarificationOptions.map((opt, idx) => (
                     <button
                       key={idx}
                       onClick={() => onSelectOption && onSelectOption(opt)}
-                      className="w-full text-left p-2.5 rounded bg-tint/30 border border-tint hover:border-primary hover:bg-tint text-xs text-ink transition-colors cursor-pointer font-medium"
+                      className="w-full text-left min-h-[42px] p-3 rounded-lg bg-page border border-border hover:border-primary hover:bg-card text-control text-main transition-colors cursor-pointer font-medium"
                     >
                       {opt}
                     </button>
@@ -188,9 +188,9 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'rejected':
       return (
         <StateView
-          icon={<ShieldAlert className="w-7 h-7 text-status-error" aria-hidden="true" />}
-          badgeText="Security Guardrail"
-          badgeVariant="error"
+          icon={<ShieldAlert className="w-8 h-8 text-destructive" aria-hidden="true" />}
+          badgeText="Security guardrail"
+          badgeVariant="destructive"
           title="Generated SQL rejected"
           description={
             errorMessage ||
@@ -204,9 +204,9 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'timeout':
       return (
         <StateView
-          icon={<TimerOff className="w-7 h-7 text-status-warning" aria-hidden="true" />}
-          badgeText="Timeout Exceeded"
-          badgeVariant="warning"
+          icon={<TimerOff className="w-8 h-8 text-destructive" aria-hidden="true" />}
+          badgeText="Timeout exceeded"
+          badgeVariant="destructive"
           title="Query execution timed out"
           description={
             errorMessage ||
@@ -223,8 +223,8 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'empty_result':
       return (
         <StateView
-          icon={<SearchX className="w-7 h-7 text-ink-muted" aria-hidden="true" />}
-          badgeText="Zero Rows"
+          icon={<SearchX className="w-8 h-8 text-secondary" aria-hidden="true" />}
+          badgeText="Zero rows"
           badgeVariant="outline"
           title="No records matched criteria"
           description={
@@ -239,8 +239,8 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'backend_unavailable':
       return (
         <StateView
-          icon={<WifiOff className="w-7 h-7 text-status-error" aria-hidden="true" />}
-          badgeText="Service Unavailable"
+          icon={<WifiOff className="w-8 h-8 text-error" aria-hidden="true" />}
+          badgeText="Service unavailable"
           badgeVariant="error"
           title="Cannot connect to DataTalk AI backend"
           description="The backend service is currently unreachable. Please check if the server is running on the configured API base URL."
@@ -253,8 +253,8 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     case 'llm_not_configured':
       return (
         <StateView
-          icon={<KeyRound className="w-7 h-7 text-status-warning" aria-hidden="true" />}
-          badgeText="Provider Error"
+          icon={<KeyRound className="w-8 h-8 text-main" aria-hidden="true" />}
+          badgeText="Provider error"
           badgeVariant="warning"
           title="LLM provider not configured"
           description="The backend does not have an active LLM provider configured. Contact your administrator or ensure the provider credentials are set."
@@ -268,7 +268,7 @@ export const StateContainer: React.FC<StateContainerProps> = ({
     default:
       return (
         <StateView
-          icon={<AlertCircle className="w-7 h-7 text-status-error" aria-hidden="true" />}
+          icon={<AlertCircle className="w-8 h-8 text-error" aria-hidden="true" />}
           badgeText="Error"
           badgeVariant="error"
           title="Query execution error"
@@ -285,4 +285,3 @@ export const StateContainer: React.FC<StateContainerProps> = ({
       );
   }
 };
-

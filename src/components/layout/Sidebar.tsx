@@ -40,22 +40,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-56 border-r border-tint bg-surface/50 flex flex-col justify-between shrink-0 select-none">
-      <div className="p-3">
-        <div className="px-3 py-2 text-[11px] font-semibold text-ink-muted tracking-wider uppercase">
+    <aside className="w-full lg:w-60 border-b lg:border-b-0 lg:border-r border-border bg-card flex flex-col justify-between shrink-0 select-none">
+      <div className="p-3.5">
+        <div className="px-3.5 py-2 text-caption font-medium text-secondary">
           Workbench
         </div>
-        <nav className="space-y-1" aria-label="Workbench Navigation">
+        <nav className="space-y-1.5" aria-label="Workbench Navigation">
           {navItems.map((item) => {
             const isActive = currentView === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-colors cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg min-h-[42px] text-control font-medium transition-colors cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary ${
                   isActive
-                    ? 'bg-primary text-white shadow-subtle'
-                    : 'text-ink hover:bg-tint/30 hover:text-ink'
+                    ? 'bg-primary text-primary-text font-semibold'
+                    : 'text-main hover:bg-page hover:text-main'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
@@ -67,23 +67,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Execution context footer - displayed only when provided */}
+      {/* Execution context footer */}
       {(engineName || memoryUsage) && (
-        <div className="p-3 border-t border-tint/80 text-[11px] space-y-1 text-ink-muted">
-          <div className="flex items-center gap-1.5 uppercase tracking-wider font-semibold text-[10px]">
-            <Cpu className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
-            <span>Execution Context</span>
+        <div className="p-3.5 border-t border-border text-caption space-y-1.5 text-secondary">
+          <div className="flex items-center gap-2 font-medium text-caption text-main">
+            <Cpu className="w-4 h-4 text-primary" aria-hidden="true" />
+            <span>Execution context</span>
           </div>
           {engineName && (
-            <div className="flex justify-between">
+            <div className="flex justify-between text-caption">
               <span>Engine</span>
-              <span className="font-mono text-ink font-medium">{engineName}</span>
+              <span className="font-mono text-main font-medium">{engineName}</span>
             </div>
           )}
           {memoryUsage && (
-            <div className="flex justify-between">
+            <div className="flex justify-between text-caption">
               <span>Memory</span>
-              <span className="font-mono text-ink font-medium">{memoryUsage}</span>
+              <span className="font-mono text-main font-medium">{memoryUsage}</span>
             </div>
           )}
         </div>
@@ -91,4 +91,3 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
-

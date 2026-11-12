@@ -22,12 +22,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   assistantPanel,
 }) => {
   return (
-    <div className="h-screen w-screen flex flex-col bg-surface text-ink overflow-hidden">
+    <div className="h-screen w-screen flex flex-col bg-page text-main overflow-hidden text-body">
       {/* Top Bar */}
       <TopBar {...topBarProps} />
 
       {/* Main Layout Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left Workbench Sidebar */}
         <Sidebar
           currentView={currentView}
@@ -38,17 +38,17 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         {/* Center Workspace Area: Internal scrolling only */}
         <main
-          className="flex-1 overflow-y-auto custom-scrollbar p-6 flex flex-col min-w-0"
+          className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col min-w-0"
           id="main-content"
           tabIndex={-1}
         >
           {children}
         </main>
 
-        {/* Right Assistant Panel: Distinct tint background */}
+        {/* Right Assistant Panel */}
         {assistantPanel && (
           <aside
-            className="w-96 border-l border-tint bg-tint/40 flex flex-col shrink-0 overflow-hidden"
+            className="w-full lg:w-[380px] border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col shrink-0 overflow-hidden max-h-[50vh] lg:max-h-full"
             aria-label="Data Assistant Panel"
           >
             {assistantPanel}
@@ -58,4 +58,3 @@ export const AppShell: React.FC<AppShellProps> = ({
     </div>
   );
 };
-

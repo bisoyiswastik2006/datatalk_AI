@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ThemeProvider, useTheme, Theme } from './context/ThemeContext';
 import { DatasetProvider, useDataset } from './context/DatasetContext';
 import { QueryProvider, useQuery, QueryFlowState } from './context/QueryContext';
 import { AppShell } from './components/layout/AppShell';
@@ -40,6 +41,8 @@ function DataTalkApp() {
     setStateDirectly,
   } = useQuery();
 
+  const { setTheme } = useTheme();
+
   const [currentView, setCurrentView] = useState<WorkbenchView>('query-studio');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
@@ -50,6 +53,11 @@ function DataTalkApp() {
   // Handle initial URL parameters for screenshot verification or direct linking
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const themeParam = params.get('theme');
+    if (themeParam === 'light' || themeParam === 'dark') {
+      setTheme(themeParam as Theme);
+    }
+
     const viewParam = params.get('view');
     if (viewParam === 'results') {
       selectDataset('dataset-retail-01').then(() => {
@@ -59,6 +67,10 @@ function DataTalkApp() {
       api.getDataset('dataset-excel-02').then((detail) => {
         setPendingPreviewDataset(detail);
         selectDataset('dataset-excel-02');
+      });
+    } else if (viewParam === 'error') {
+      selectDataset('dataset-retail-01').then(() => {
+        setStateDirectly('rejected');
       });
     }
   }, []);
@@ -138,12 +150,12 @@ function DataTalkApp() {
         }
       >
         {/* State Demo Selector Pill positioned in top right of workspace */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-xs font-mono text-ink-muted">
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="text-caption font-mono text-secondary">
             {activeDataset ? (
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-status-success inline-block" />
-                Active: <span className="font-semibold text-ink">{activeDataset.name}</span>
+              <span className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block" />
+                Active: <span className="font-semibold text-main">{activeDataset.name}</span>
               </span>
             ) : (
               <span>No dataset loaded</span>
@@ -214,28 +226,28 @@ function DataTalkApp() {
         ) : (
           /* Ready State: Dataset Loaded, waiting for query */
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 max-w-xl mx-auto space-y-4">
-            <div className="w-14 h-14 rounded-full bg-tint/60 border border-tint flex items-center justify-center text-primary">
+            <div className="w-14 h-14 rounded-lg bg-page border border-border flex items-center justify-center text-primary">
               <Sparkles className="w-7 h-7" aria-hidden="true" />
             </div>
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-ink">
+            <div className="space-y-1.5">
+              <h2 className="text-title-card font-semibold text-main">
                 {activeDataset.name} is ready for queries
               </h2>
-              <p className="text-xs text-ink-muted leading-relaxed max-w-md">
+              <p className="text-body text-secondary leading-relaxed max-w-md">
                 Ask any natural language question about {activeDataset.name} in the assistant panel on the right, or pick one of the schema-derived questions below:
               </p>
             </div>
 
             {suggestedQuestions.length > 0 && (
-              <div className="w-full space-y-2 pt-2 text-left">
+              <div className="w-full space-y-2.5 pt-2 text-left">
                 {suggestedQuestions.map((q, idx) => (
                   <button
                     key={idx}
                     onClick={() => askQuestion(q, activeDataset.id)}
-                    className="w-full p-3 rounded-lg bg-surface border border-tint hover:border-secondary hover:bg-tint/20 text-xs text-ink transition-colors cursor-pointer flex items-center justify-between group shadow-subtle"
+                    className="w-full min-h-[46px] p-3.5 rounded-lg bg-card border border-border hover:border-primary text-control text-main transition-colors cursor-pointer flex items-center justify-between group shadow-sm"
                   >
                     <span>{q}</span>
-                    <ArrowRight className="w-4 h-4 text-secondary group-hover:text-primary transition-colors" />
+                    <ArrowRight className="w-4 h-4 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -276,11 +288,13 @@ function DataTalkApp() {
 
 export function App() {
   return (
-    <DatasetProvider>
-      <QueryProvider>
-        <DataTalkApp />
-      </QueryProvider>
-    </DatasetProvider>
+    <ThemeProvider>
+      <DatasetProvider>
+        <QueryProvider>
+          <DataTalkApp />
+        </QueryProvider>
+      </DatasetProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
-  description?: string;
+  title: string;
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl' | 'full';
 }
@@ -14,24 +13,19 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
-  description,
   children,
-  maxWidth = '2xl',
+  maxWidth = 'lg',
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -44,50 +38,43 @@ export const Modal: React.FC<ModalProps> = ({
     '2xl': 'max-w-2xl',
     '4xl': 'max-w-4xl',
     '6xl': 'max-w-6xl',
-    full: 'max-w-[95vw]',
+    full: 'max-w-[96vw]',
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-none"
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
+      aria-labelledby="modal-title"
     >
       <div
         className="fixed inset-0"
-        aria-hidden="true"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       <div
-        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-surface border border-secondary/40 rounded-lg shadow-card flex flex-col max-h-[90vh] overflow-hidden z-10`}
+        ref={modalRef}
+        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-card border border-border rounded-lg shadow-sm flex flex-col max-h-[90vh] overflow-hidden z-10`}
       >
-        {title && (
-          <div className="px-6 py-4 border-b border-tint flex items-center justify-between shrink-0 bg-surface">
-            <div>
-              <h2 id="modal-title" className="text-base font-semibold text-ink">
-                {title}
-              </h2>
-              {description && (
-                <p className="text-xs text-ink-muted mt-0.5">{description}</p>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1 rounded text-ink-muted hover:text-ink hover:bg-tint/30 transition-colors cursor-pointer"
-              aria-label="Close dialog"
-            >
-              <X className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </div>
-        )}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card shrink-0 min-h-[56px]">
+          <h2 id="modal-title" className="text-title-card font-semibold text-main leading-tight">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 min-h-[40px] flex items-center justify-center rounded-lg text-secondary hover:text-main hover:bg-page transition-colors cursor-pointer"
+            aria-label="Close dialog"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+        <div className="p-5 overflow-y-auto custom-scrollbar flex-1 bg-card">
           {children}
         </div>
       </div>
     </div>
   );
 };
-

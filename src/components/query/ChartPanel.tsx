@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import Plot from 'react-plotly.js';
 import { BarChart3 } from 'lucide-react';
 import { ChartHint } from '../../types/query';
+import { useTheme } from '../../context/ThemeContext';
 
 export interface ChartPanelProps {
   columns: string[];
@@ -10,18 +11,23 @@ export interface ChartPanelProps {
 }
 
 export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const chartType = chartHint?.type || 'bar';
   const chartTitle = chartHint?.title || 'Data visualization';
 
-  // Palette colors defined strictly in UI_DESIGN.md
-  const themeColors = {
-    primary: '#3368A0',
-    secondary: '#66A3BF',
-    ink: '#14283D',
-    tint: '#C8DFDB',
-    surface: '#F2EFE7',
-    grid: '#D9D5CC',
-  };
+  // Strict palette series order according to specification:
+  // Dark mode:  #00B8FC, #FFFF00, #FD3500, #FFFFFF
+  // Light mode: #0058FD, #00B8FC, #FD3500, #000000
+  const seriesColors = isDark
+    ? ['#00B8FC', '#FFFF00', '#FD3500', '#FFFFFF']
+    : ['#0058FD', '#00B8FC', '#FD3500', '#000000'];
+
+  const textColor = isDark ? '#A8B0BD' : '#4A5361';
+  const headingColor = isDark ? '#FFFFFF' : '#000000';
+  const gridColor = isDark ? '#232833' : '#D9DEE7';
+  const hoverBgColor = isDark ? '#0F1115' : '#FFFFFF';
 
   const { plotData, plotLayout } = useMemo(() => {
     if (!columns || !rows || rows.length === 0) {
@@ -54,7 +60,6 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
     let data: any[] = [];
 
     if (chartType === 'horizontal_bar') {
-      // Horizontal bar: y-axis is category, x-axis is numeric metric
       data = [
         {
           type: 'bar',
@@ -62,7 +67,7 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
           x: xVals,
           y: yVals,
           marker: {
-            color: themeColors.primary,
+            color: seriesColors[0],
           },
           hoverinfo: 'x+y',
         },
@@ -74,7 +79,7 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
           labels: yVals,
           values: xVals,
           marker: {
-            colors: [themeColors.primary, themeColors.secondary, themeColors.ink, themeColors.tint],
+            colors: seriesColors,
           },
           textinfo: 'label+percent',
         },
@@ -86,19 +91,18 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
           mode: 'lines+markers',
           x: xVals,
           y: yVals,
-          line: { color: themeColors.primary, width: 2.5 },
-          marker: { color: themeColors.ink, size: 6 },
+          line: { color: seriesColors[0], width: 2.5 },
+          marker: { color: seriesColors[1], size: 7 },
         },
       ];
     } else {
-      // Standard vertical bar
       data = [
         {
           type: 'bar',
           x: xVals,
           y: yVals,
           marker: {
-            color: themeColors.primary,
+            color: seriesColors[0],
           },
         },
       ];
@@ -106,47 +110,56 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
 
     const layout: any = {
       autosize: true,
-      margin: { l: 80, r: 24, t: 30, b: 40 },
+      margin: { l: 110, r: 24, t: 25, b: 40 },
       paper_bgcolor: 'transparent',
       plot_bgcolor: 'transparent',
       font: {
         family: '"Nohemi", system-ui, -apple-system, sans-serif',
-        size: 11,
-        color: themeColors.ink,
+        size: 14,
+        color: textColor,
       },
       showlegend: false,
+      hoverlabel: {
+        bgcolor: hoverBgColor,
+        bordercolor: gridColor,
+        font: {
+          family: '"Nohemi", system-ui, -apple-system, sans-serif',
+          color: headingColor,
+          size: 14,
+        },
+      },
       xaxis: {
         showgrid: true,
-        gridcolor: themeColors.grid,
-        zerolinecolor: themeColors.grid,
-        tickfont: { family: 'ui-monospace, monospace', size: 10, color: '#4A5F73' },
+        gridcolor: gridColor,
+        zerolinecolor: gridColor,
+        tickfont: { family: 'ui-monospace, monospace', size: 13, color: textColor },
       },
       yaxis: {
         showgrid: chartType !== 'horizontal_bar',
-        gridcolor: themeColors.grid,
-        zerolinecolor: themeColors.grid,
-        tickfont: { family: 'ui-monospace, monospace', size: 10, color: '#4A5F73' },
+        gridcolor: gridColor,
+        zerolinecolor: gridColor,
+        tickfont: { family: 'ui-monospace, monospace', size: 13, color: textColor },
       },
     };
 
     return { plotData: data, plotLayout: layout };
-  }, [columns, rows, chartHint, chartType]);
+  }, [columns, rows, chartHint, chartType, theme, isDark, seriesColors, textColor, headingColor, gridColor, hoverBgColor]);
 
   if (!columns || !rows || rows.length === 0) {
     return (
-      <div className="flex flex-col h-full rounded-lg border border-tint bg-surface p-6 items-center justify-center text-ink-muted text-xs">
+      <div className="flex flex-col h-full rounded-lg border border-border bg-card p-6 items-center justify-center text-secondary text-body">
         <span>No chart data available</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-tint bg-surface shadow-subtle overflow-hidden">
+    <div className="flex flex-col h-full rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       {/* Chart Title Header */}
-      <div className="px-4 py-2.5 bg-surface border-b border-tint flex items-center justify-between shrink-0 select-none">
-        <div className="flex items-center gap-2">
+      <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between shrink-0 select-none min-h-[48px]">
+        <div className="flex items-center gap-2.5">
           <BarChart3 className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-ink">
+          <span className="text-title-card font-semibold text-main">
             {chartTitle}
           </span>
         </div>
@@ -165,4 +178,3 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ columns, rows, chartHint
     </div>
   );
 };
-

@@ -62,15 +62,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-auto w-full justify-between gap-8 py-2">
-      {/* Header and Step Indicator */}
+    <div className="flex flex-col h-full max-w-5xl mx-auto w-full justify-between gap-6 py-1">
+      {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-mono text-ink-muted uppercase tracking-wider">
-          <span>STEP 01</span>
-          <span>/</span>
-          <span>DATA INGESTION</span>
-        </div>
-        <h1 className="text-2xl font-semibold text-ink">
+        <h1 className="text-title-page font-semibold text-main leading-tight">
           Data Connection & Schema Engine
         </h1>
       </div>
@@ -80,10 +75,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`relative border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all ${
+        className={`relative border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center transition-colors shadow-sm ${
           isDragOver
-            ? 'border-primary bg-tint/20 scale-[0.99]'
-            : 'border-secondary/40 bg-surface hover:border-secondary hover:bg-tint/10'
+            ? 'border-primary bg-primary-tint'
+            : 'border-border bg-card hover:border-primary'
         }`}
       >
         <input
@@ -99,18 +94,18 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
           disabled={isUploading}
         />
 
-        <div className="w-14 h-14 rounded-full bg-tint/50 border border-tint flex items-center justify-center text-primary mb-4">
+        <div className="w-14 h-14 rounded-lg bg-page border border-border flex items-center justify-center text-primary mb-4">
           <Upload className="w-7 h-7" aria-hidden="true" />
         </div>
 
-        <h2 className="text-lg font-semibold text-ink mb-1">
+        <h2 className="text-title-card font-semibold text-main mb-1.5">
           Upload a CSV, Excel, or SQLite file to begin
         </h2>
-        <p className="text-sm text-ink-muted max-w-md mb-6 leading-relaxed">
+        <p className="text-body text-secondary max-w-md mb-6 leading-relaxed">
           Drag and drop your file here, or click to browse from your computer. Files are parsed and registered securely for natural language exploration.
         </p>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <Button
             variant="primary"
             size="md"
@@ -120,20 +115,20 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
           >
             {isUploading ? 'Validating file...' : 'Choose file'}
           </Button>
-          <span className="text-xs text-ink-muted">or drop raw files here</span>
+          <span className="text-caption text-secondary">or drop raw files here</span>
         </div>
 
         {/* Error notification */}
         {(validationError || uploadError) && (
-          <div className="mt-5 p-3 rounded-md bg-status-error-bg border border-status-error/30 text-status-error text-xs flex items-center gap-2 max-w-lg">
+          <div className="mt-5 p-3.5 rounded-lg bg-error/15 border border-error/40 text-error text-caption flex items-center gap-2.5 max-w-lg">
             <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>{validationError || uploadError}</span>
           </div>
         )}
 
         {/* Supported formats and dynamic file size limit from config */}
-        <div className="mt-8 text-xs text-ink-muted flex items-center gap-2 bg-tint/30 px-3 py-1.5 rounded-full border border-tint">
-          <Database className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
+        <div className="mt-6 text-caption text-secondary flex items-center gap-2 bg-page px-4 py-2 rounded-lg border border-border">
+          <Database className="w-4 h-4 text-primary" aria-hidden="true" />
           <span>
             Supported formats: .csv, .xlsx, .sqlite, .db (up to {config.maxFileSizeMb} MB)
           </span>
@@ -141,11 +136,11 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
       </div>
 
       {/* Quick-Start Environments */}
-      <div className="pt-4 border-t border-tint/80 space-y-3">
-        <div className="flex items-center justify-between text-xs font-mono text-ink-muted">
-          <div className="flex items-center gap-1.5 tracking-wider uppercase font-semibold">
-            <Table className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
-            <span>Quick-Start Environments</span>
+      <div className="pt-4 border-t border-border space-y-3">
+        <div className="flex items-center justify-between text-caption font-medium text-secondary">
+          <div className="flex items-center gap-2">
+            <Table className="w-4 h-4 text-primary" aria-hidden="true" />
+            <span>Quick-start environments</span>
           </div>
           <span>Zero configuration - Loads instantly</span>
         </div>
@@ -153,48 +148,48 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => onSelectQuickStart && onSelectQuickStart('dataset-retail-01')}
-            className="p-4 rounded-lg bg-surface border border-tint hover:border-secondary hover:bg-tint/20 text-left transition-all cursor-pointer group shadow-subtle focus-visible:ring-2 focus-visible:ring-primary"
+            className="p-4 rounded-lg bg-card border border-border hover:border-primary text-left transition-colors cursor-pointer group shadow-sm focus-visible:ring-2 focus-visible:ring-primary min-h-[110px]"
           >
-            <div className="flex items-center justify-between text-[11px] font-mono text-ink-muted mb-1.5">
-              <span className="uppercase font-semibold">Retail & Commerce</span>
-              <span className="flex items-center gap-1">
-                CSV <ArrowUpRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between text-caption font-medium text-secondary mb-1.5">
+              <span>Retail & commerce</span>
+              <span className="flex items-center gap-1 font-mono">
+                CSV <ArrowUpRight className="w-3.5 h-3.5 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
               </span>
             </div>
-            <div className="font-semibold text-sm text-ink mb-1">Superstore Sales</div>
-            <div className="text-xs text-ink-muted line-clamp-2">
+            <div className="font-semibold text-title-card text-main mb-1">Superstore Sales</div>
+            <div className="text-caption text-secondary line-clamp-2 leading-relaxed">
               Transactional records covering global sales, profit margins, ship modes, and customer segments.
             </div>
           </button>
 
           <button
             onClick={() => onSelectQuickStart && onSelectQuickStart('dataset-sqlite-03')}
-            className="p-4 rounded-lg bg-surface border border-tint hover:border-secondary hover:bg-tint/20 text-left transition-all cursor-pointer group shadow-subtle focus-visible:ring-2 focus-visible:ring-primary"
+            className="p-4 rounded-lg bg-card border border-border hover:border-primary text-left transition-colors cursor-pointer group shadow-sm focus-visible:ring-2 focus-visible:ring-primary min-h-[110px]"
           >
-            <div className="flex items-center justify-between text-[11px] font-mono text-ink-muted mb-1.5">
-              <span className="uppercase font-semibold">Relational Schema</span>
-              <span className="flex items-center gap-1">
-                SQLite <ArrowUpRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between text-caption font-medium text-secondary mb-1.5">
+              <span>Relational schema</span>
+              <span className="flex items-center gap-1 font-mono">
+                SQLite <ArrowUpRight className="w-3.5 h-3.5 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
               </span>
             </div>
-            <div className="font-semibold text-sm text-ink mb-1">Northwind Relational</div>
-            <div className="text-xs text-ink-muted line-clamp-2">
+            <div className="font-semibold text-title-card text-main mb-1">Northwind Relational</div>
+            <div className="text-caption text-secondary line-clamp-2 leading-relaxed">
               Multi-table relational schema with customers, suppliers, inventory orders, and order details.
             </div>
           </button>
 
           <button
             onClick={() => onSelectQuickStart && onSelectQuickStart('dataset-excel-02')}
-            className="p-4 rounded-lg bg-surface border border-tint hover:border-secondary hover:bg-tint/20 text-left transition-all cursor-pointer group shadow-subtle focus-visible:ring-2 focus-visible:ring-primary"
+            className="p-4 rounded-lg bg-card border border-border hover:border-primary text-left transition-colors cursor-pointer group shadow-sm focus-visible:ring-2 focus-visible:ring-primary min-h-[110px]"
           >
-            <div className="flex items-center justify-between text-[11px] font-mono text-ink-muted mb-1.5">
-              <span className="uppercase font-semibold">Corporate Finance</span>
-              <span className="flex items-center gap-1">
-                XLSX <ArrowUpRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between text-caption font-medium text-secondary mb-1.5">
+              <span>Corporate finance</span>
+              <span className="flex items-center gap-1 font-mono">
+                XLSX <ArrowUpRight className="w-3.5 h-3.5 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
               </span>
             </div>
-            <div className="font-semibold text-sm text-ink mb-1">Financial Q4 Model</div>
-            <div className="text-xs text-ink-muted line-clamp-2">
+            <div className="font-semibold text-title-card text-main mb-1">Financial Q4 Model</div>
+            <div className="text-caption text-secondary line-clamp-2 leading-relaxed">
               Audited EBITDA projections, departmental burn rates, and quarterly return distributions.
             </div>
           </button>

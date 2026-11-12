@@ -1,117 +1,70 @@
 # UI/UX Design Guidelines: DataTalk AI
 
-## 1. Color palette
+## 1. Color System (Light & Dark Mode)
 
-| Token | Hex | Role |
-|---|---|---|
-| `--color-primary` | #3368A0 | Primary actions, active states, links, key chart series, focus rings |
-| `--color-secondary` | #66A3BF | Secondary chart series, hover states, borders on active items, icons |
-| `--color-tint` | #C8DFDB | Panels, assistant panel background, selected rows, subtle fills |
-| `--color-surface` | #F2EFE7 | Page background, cards, table backgrounds |
+DataTalk AI uses a semantic CSS-variable and Tailwind token architecture supporting instant light/dark theme toggling with system preference detection and localStorage persistence.
 
-### Derived neutrals (additions, not in the supplied palette)
-The four colors alone cannot give readable body text, so add two derived tokens. Confirm with the team before using anything else.
+### Brand Palette & Semantic Roles
+- **Brand Colors:** `#00B8FC`, `#0058FD`, `#FFFF00`, `#FF0000`, `#FD3500`, `#000000`
+- **Primary:**
+  - Light mode: `#0058FD` (fill with `#FFFFFF` text)
+  - Dark mode: `#00B8FC` (fill with `#000000` text)
+  - Used for: buttons, active nav indicators, links, focus rings, primary chart series.
+- **Warning:** `#FFFF00` (warnings and highlights only, always with `#000000` text and an `AlertTriangle` warning icon).
+- **Error:** `#FF0000` (errors, always with an icon and text label).
+- **Destructive / Timeout / Rejected:** `#FD3500` (SQL rejected, timeout, destructive actions, and third chart series).
+- **Page Background / Text:** `#000000` (dark mode page background and light mode main text).
 
-| Token | Hex | Role |
-|---|---|---|
-| `--color-ink` | #14283D | Body text and headings (dark shade of the primary hue) |
-| `--color-ink-muted` | #4A5F73 | Secondary text, captions, table headers |
+### Neutrals
+| Token | Light Mode | Dark Mode | Role |
+|---|---|---|---|
+| `page` | `#F5F7FA` | `#000000` | Page workspace background |
+| `card` | `#FFFFFF` | `#0F1115` | Cards, panels, top bar, sidebar, assistant panel |
+| `border` | `#D9DEE7` | `#232833` | Borders, dividers, subtle separators |
+| `main` | `#000000` | `#FFFFFF` | Headings, primary body text |
+| `secondary` | `#4A5361` | `#A8B0BD` | Captions, table headers, subtitles, helper text |
 
-Status colors (error, warning, success) are not in the palette. Prefer expressing them with an icon plus text label; if a color is needed, use a muted red and amber that sit well on #F2EFE7, and decide this once in the theme file.
+### Contrast & Styling Rules
+- **Noemoji rule:** Zero emoji anywhere in UI, code, or documentation.
+- **Light mode rule:** Never use `#00B8FC` or `#FFFF00` for text or thin lines in light mode; use them only as fills with black text.
+- **Status rule:** Never rely on color alone for status; every status requires an icon and text label.
+- **Primary buttons:** Standard rounded corners (8px `rounded-lg`), min 40px touch target. White text on `#0058FD` in light mode; black text on `#00B8FC` in dark mode.
+- **Cards:** Clean plain cards with 8-12px radius, 1px border, minimal shadow (`shadow-sm`). No glow, no lift on hover, no card gradient, no accent line.
+- **SQL viewer:** `#000000` background with `#232833` border in dark mode; `#F5F7FA` background with `#D9DEE7` border in light mode. Monospace 15px syntax highlighting.
+- **Plotly charts:** Transparent background (`rgba(0,0,0,0)`), text from theme tokens, light gridlines from border token.
+  - Series order (dark mode): `#00B8FC`, `#FFFF00`, `#FD3500`, `#FFFFFF`.
+  - Series order (light mode): `#0058FD`, `#00B8FC`, `#FD3500`, `#000000`.
+  - Re-themes instantly upon mode change.
 
-### Contrast rules
-- Body text: `--color-ink` on `--color-surface` or `--color-tint` (high contrast).
-- #3368A0 on #F2EFE7 passes for text and buttons. White text on #3368A0 is fine for primary buttons.
-- **Do not use #66A3BF for text on #F2EFE7 or #C8DFDB.** It is too low in contrast. Use it for fills, borders, icons, and chart series only.
-- Do not rely on color alone to convey meaning (add labels, icons, or patterns).
-- Target WCAG AA (4.5:1 for normal text, 3:1 for large text and UI components). Verify with a contrast checker before finalizing.
-
-### Chart colors
-Plotly series order: #3368A0, #66A3BF, then dark ink #14283D, then #C8DFDB with a darker outline. Set chart paper and plot background to transparent or #F2EFE7. Use direct labels or clear legends. Keep gridlines light.
+---
 
 ## 2. Typography
 
 **Typeface: Nohemi** (Pangram Pangram).
-
-- Load with `@font-face` from local files in the frontend (`src/styles/fonts/`), using `woff2`.
-- Weights to use: Regular (400), Medium (500), SemiBold (600). Add others only if needed.
-- **Licensing:** Nohemi is not an open-source font. Check the license on the Pangram Pangram site. Personal/trial use is free; any public or commercial deployment needs the correct license. For a college project, confirm the terms allow your use and record the license in the README.
 - Fallback stack: `"Nohemi", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`.
-- Use `font-display: swap`.
-- For SQL, code, and numeric tables, use a monospace font (e.g. `ui-monospace, "JetBrains Mono", Consolas, monospace`) so SQL stays readable. Nohemi is a display-leaning sans and is not suited to code blocks.
+- Monospace stack: `ui-monospace, "JetBrains Mono", Consolas, monospace`.
 
-### Type scale (suggested)
-| Use | Size | Weight |
-|---|---|---|
-| Page/section title | 20-24px | 600 |
-| Card title | 16-18px | 600 |
-| Body | 14-15px | 400 |
-| Table cells | 13-14px | 400 |
-| Caption / metadata | 12px | 400-500 |
+### Semantic Type Scale
+| Role | Size | Weight | Line Height | Token |
+|---|---|---|---|---|
+| Page/section title | 28px | 600 | 1.3 | `text-title-page` |
+| Card title | 20px | 600 | 1.3 | `text-title-card` |
+| Body and chat text | 16px | 400 | 1.5 | `text-body` |
+| Table cells | 15px | 400 | 1.4 | `text-table-cell` |
+| Table headers | 14px | 500 | 1.4 | `text-table-header` |
+| Controls (buttons, inputs, tabs, nav) | 16px | 400/500 | 1.5 | `text-control` |
+| Captions, labels, badges, status | 14px (min 13px) | 400/500 | 1.5 | `text-caption` |
+| SQL viewer & code | 15px monospace | 400 | 1.5 | `text-code font-mono` |
+| Chart ticks | 13px | 400 | 1.4 | `text-tick` |
 
-## 3. No emoji rule
-- No emoji anywhere: UI text, buttons, labels, empty states, error messages, chat responses, placeholders, docs.
-- Use Lucide icons for visual cues.
-- The LLM system prompt must instruct the model not to use emoji in answers. Strip or reject emoji from model output as a safeguard.
+---
 
-## 4. Layout
-Follows the technical spec: compact top bar, main workspace on the left, assistant panel on the right.
+## 3. Light/Dark Mode Toggle
 
-- Page background: `--color-surface`.
-- Top bar: `--color-surface` with a thin bottom border in `--color-tint`; brand in `--color-primary`.
-- Assistant panel: `--color-tint` background so it is distinct but not heavy.
-- Cards (SQL, table, chart): `--color-surface` with a 1px `--color-tint` or `--color-secondary` border, 8-12px radius, minimal shadow.
-- Primary button: `--color-primary` fill, white text. Secondary button: transparent with `--color-primary` border and text.
-- Selected table row / active dataset: `--color-tint` fill with a `--color-primary` left border.
-- Focus ring: 2px `--color-primary` with offset, always visible for keyboard users.
-- Internal scrolling for tables and chat; stack panels on small screens.
-- Spacing on a 4px grid (4, 8, 12, 16, 24, 32).
-
-## 5. Tailwind setup (suggested)
-```js
-// tailwind.config.js
-theme: {
-  extend: {
-    colors: {
-      primary: "#3368A0",
-      secondary: "#66A3BF",
-      tint: "#C8DFDB",
-      surface: "#F2EFE7",
-      ink: "#14283D",
-      "ink-muted": "#4A5F73",
-    },
-    fontFamily: {
-      sans: ['"Nohemi"', "system-ui", "-apple-system", '"Segoe UI"', "Roboto", "sans-serif"],
-      mono: ['ui-monospace', '"JetBrains Mono"', "Consolas", "monospace"],
-    },
-  },
-}
-```
-Define the same colors as CSS variables so Plotly and non-Tailwind code can use them.
-
-## 6. UX principles
-1. **Always show context:** the active dataset name is visible at all times.
-2. **Show the work:** SQL is visible or one click away on every answer.
-3. **Honest states:** every state in the technical spec has a designed, text-labeled screen (loading, empty, error, not answerable, SQL rejected, timeout, LLM not configured).
-4. **Plain language errors:** say what happened and what to do next. No stack traces.
-5. **Progressive disclosure:** answer first, then SQL, table, chart, warnings.
-6. **Never imply certainty the data does not support.** Show warnings near the result.
-7. **Keyboard accessible:** full tab order, Enter to send, Escape to close dialogs, labeled form fields, `aria-live` for status updates.
-8. **Reduced motion:** respect `prefers-reduced-motion`. Keep animation minimal and functional.
-9. **Suggested questions** must be generated from the active dataset's schema, never hardcoded.
-
-## 7. Content and tone
-- Short, direct, professional sentences.
-- No emoji, no exclamation-heavy copy, no slang.
-- Use sentence case for labels and buttons ("Upload dataset", "Ask a question").
-
-## 8. Design acceptance checklist
-- [ ] Only the four palette colors plus the two derived ink tones (and status colors, once decided) are used
-- [ ] No text uses #66A3BF on a light background
-- [ ] Nohemi loads and falls back gracefully; SQL and code use monospace
-- [ ] Nohemi license confirmed and noted in the README
-- [ ] No emoji in UI, chat output, or docs
-- [ ] Contrast checked to WCAG AA
-- [ ] Layout fits a standard laptop viewport without page-level scrolling
-- [ ] All required UI states are designed and implemented
-- [ ] Keyboard navigation and visible focus work throughout
+- Located at the right end of the top bar.
+- Uses Lucide `Sun` and `Moon` icons (no emoji).
+- Accessible `aria-label` ("Switch to dark mode" / "Switch to light mode").
+- Default: `prefers-color-scheme`.
+- Remembers preference in `localStorage` safely wrapped in `try/catch`.
+- Pre-paint inline script prevents theme flashing.
+- Respects `prefers-reduced-motion` for transitions.

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, Download } from 'lucide-react';
 import { Button } from '../common/Button';
 
@@ -15,6 +15,8 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   rowCount,
   tableName = 'Query results',
 }) => {
+  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
+
   const exportToCsv = () => {
     if (!columns || !rows) return;
     const headerLine = columns.map((col) => `"${col.replace(/"/g, '""')}"`).join(',');
@@ -37,84 +39,101 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   const total = rowCount !== undefined ? rowCount : rows.length;
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-tint bg-surface shadow-subtle overflow-hidden">
+    <div className="flex flex-col h-full rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       {/* Table Header Action Bar */}
-      <div className="px-4 py-2.5 bg-surface border-b border-tint flex items-center justify-between shrink-0 select-none">
-        <div className="flex items-center gap-2">
+      <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between shrink-0 select-none min-h-[48px]">
+        <div className="flex items-center gap-2.5">
           <Table className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-ink">
+          <span className="text-title-card font-semibold text-main">
             {tableName}
           </span>
-          <span className="text-xs text-ink-muted font-mono">
+          <span className="text-caption text-secondary font-mono">
             {total} {total === 1 ? 'row' : 'rows'}
           </span>
         </div>
 
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={exportToCsv}
-          icon={<Download className="w-3.5 h-3.5" />}
-          className="text-xs text-ink hover:text-primary"
-          aria-label="Export results to CSV"
+          icon={<Download className="w-4 h-4" />}
+          className="text-control"
+          title="Export query results to CSV"
         >
           Export
         </Button>
       </div>
 
-      {/* Internal Scrollable Table Body */}
+      {/* Table Viewport with Internal Scroll and Horizontal Overflow */}
       <div className="flex-1 overflow-auto custom-scrollbar">
-        <table className="w-full text-left text-xs border-collapse">
-          <thead className="sticky top-0 bg-[#E8E4DA] z-10 border-b border-tint select-none">
+        <table className="w-full border-collapse text-left" role="table">
+          <thead className="bg-page/70 sticky top-0 z-10 select-none border-b border-border">
             <tr>
-              <th className="py-2.5 px-3 font-mono font-medium text-ink-muted text-center w-10 border-r border-tint">
+              <th className="py-3 px-4 text-table-header font-medium text-secondary whitespace-nowrap">
                 #
               </th>
-              {columns.map((col) => (
+              {columns.map((col, idx) => (
                 <th
-                  key={col}
-                  className="py-2.5 px-4 font-mono font-semibold text-ink whitespace-nowrap border-r border-tint last:border-r-0 uppercase text-[11px]"
+                  key={idx}
+                  className="py-3 px-4 text-table-header font-medium text-secondary whitespace-nowrap tracking-wide"
                 >
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-tint/60">
-            {rows.map((row, rowIdx) => (
-              <tr
-                key={rowIdx}
-                className="hover:bg-tint/25 transition-colors font-mono text-ink text-[13px]"
-              >
-                <td className="py-2 px-3 text-center text-ink-muted bg-surface/70 border-r border-tint select-none">
-                  {rowIdx + 1}
-                </td>
-                {row.map((val, colIdx) => (
-                  <td
-                    key={colIdx}
-                    className="py-2 px-4 whitespace-nowrap border-r border-tint/60 last:border-r-0"
-                  >
-                    {val !== null && val !== undefined ? String(val) : (
-                      <span className="text-ink-muted italic">NULL</span>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={columns.length + 1}
-                  className="py-8 text-center text-xs text-ink-muted"
+          <tbody className="divide-y divide-border">
+            {rows.map((row, rowIdx) => {
+              const isSelected = selectedRowIdx === rowIdx;
+              return (
+                <tr
+                  key={rowIdx}
+                  onClick={() => setSelectedRowIdx(isSelected ? null : rowIdx)}
+                  className={`transition-colors cursor-pointer select-text ${
+                    isSelected
+                      ? 'bg-primary-tint border-l-4 border-primary text-main'
+                      : 'hover:bg-page/50 text-main'
+                  }`}
+                  aria-selected={isSelected}
                 >
-                  No results returned by query.
-                </td>
-              </tr>
-            )}
+                  <td className="py-2.5 px-4 text-table-cell font-mono text-secondary whitespace-nowrap">
+                    {rowIdx + 1}
+                  </td>
+                  {row.map((cell, cellIdx) => {
+                    const isIdOrDate =
+                      columns[cellIdx]?.toLowerCase().includes('id') ||
+                      columns[cellIdx]?.toLowerCase().includes('date') ||
+                      columns[cellIdx]?.toLowerCase().includes('code');
+
+                    const isNumeric =
+                      typeof cell === 'number' ||
+                      (typeof cell === 'string' && /^[0-9,.$% -]+$/.test(cell.trim()));
+
+                    return (
+                      <td
+                        key={cellIdx}
+                        className={`py-2.5 px-4 text-table-cell ${
+                          isIdOrDate
+                            ? 'font-mono whitespace-nowrap'
+                            : isNumeric
+                            ? 'font-mono'
+                            : ''
+                        }`}
+                      >
+                        {cell === null || cell === undefined ? (
+                          <span className="text-secondary italic">null</span>
+                        ) : (
+                          String(cell)
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
-
