@@ -8,6 +8,7 @@
 [data-theme="light"] {
   --color-page: #F5F7FA;
   --color-card: #FFFFFF;
+  --color-card-rgb: 255, 255, 255;
   --color-border: #D9DEE7;
   --color-border-hover: #0058FD;
   --color-text-main: #000000;
@@ -57,6 +58,7 @@
 [data-theme="dark"] {
   --color-page: #000000;
   --color-card: #0F1115;
+  --color-card-rgb: 15, 17, 21;
   --color-border: #232833;
   --color-border-hover: #00B8FC;
   --color-text-main: #FFFFFF;
@@ -94,10 +96,27 @@
   outline-offset: 2px;
 }
 
-/* Theme transition with respect for prefers-reduced-motion */
+/* Glassmorphism panels (only on containers, never behind small text or SQL tables) */
+.glass-panel {
+  background-color: rgba(var(--color-card-rgb), 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+}
+
+.glass-card {
+  background-color: rgba(var(--color-card-rgb), 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+}
+
+/* Smooth route and component transitions */
 @media (prefers-reduced-motion: no-preference) {
   html, body, header, aside, main, div, button, input, textarea, select {
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -131,4 +150,22 @@
 /* Code block / SQL monospace styling */
 pre, code, .font-mono {
   font-family: ui-monospace, "JetBrains Mono", Consolas, monospace;
+}
+
+/* Print Stylesheet for Reports */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print, header, aside, nav, button:not(.print-include) {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .print-page-break {
+    page-break-before: always;
+  }
 }

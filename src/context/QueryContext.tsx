@@ -6,6 +6,9 @@ import { stripEmoji } from '../utils/text';
 
 export type QueryFlowState =
   | 'idle'
+  | 'uploading'
+  | 'validation_failed'
+  | 'processing'
   | 'generating_sql'
   | 'executing'
   | 'results'
@@ -14,6 +17,8 @@ export type QueryFlowState =
   | 'rejected'
   | 'timeout'
   | 'empty_result'
+  | 'backend_unavailable'
+  | 'llm_not_configured'
   | 'error';
 
 interface QueryContextType {

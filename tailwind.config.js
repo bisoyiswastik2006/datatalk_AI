@@ -46,6 +46,10 @@ export default {
         ink: 'var(--color-text-main)',
         'ink-muted': 'var(--color-text-secondary)',
       },
+      backgroundImage: {
+        'gradient-brand': 'linear-gradient(135deg, #0058FD 0%, #00B8FC 100%)',
+        'gradient-brand-subtle': 'linear-gradient(135deg, rgba(0, 88, 253, 0.08) 0%, rgba(0, 184, 252, 0.08) 100%)',
+      },
       fontSize: {
         'title-page': ['1.75rem', { lineHeight: '1.3', fontWeight: '600' }], // 28px, 600
         'title-card': ['1.25rem', { lineHeight: '1.3', fontWeight: '600' }], // 20px, 600
@@ -63,11 +67,27 @@ export default {
       },
       boxShadow: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        card: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        card: '0 4px 16px -2px rgba(0, 0, 0, 0.06)',
+        'card-hover': '0 10px 28px -4px rgba(0, 0, 0, 0.1)',
+        glow: '0 0 24px -4px rgba(0, 184, 252, 0.25)',
       },
       borderRadius: {
-        card: '8px',
+        card: '12px',
+        subtle: '8px',
+      },
+      animation: {
+        'float-slow': 'floatOrb 14s ease-in-out infinite',
+        'pulse-slow': 'pulseFaint 6s ease-in-out infinite',
+      },
+      keyframes: {
+        floatOrb: {
+          '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(20px, -24px) scale(1.06)' },
+        },
+        pulseFaint: {
+          '0%, 100%': { opacity: '0.35' },
+          '50%': { opacity: '0.65' },
+        },
       },
     },
   },

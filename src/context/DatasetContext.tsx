@@ -29,20 +29,6 @@ export const DatasetProvider: React.FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDatasets = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await api.getDatasets();
-      setDatasets(data);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to fetch datasets';
-      setError(msg);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   const selectDataset = useCallback(
     async (datasetId: string) => {
       try {
@@ -73,6 +59,24 @@ export const DatasetProvider: React.FC<{
     },
     [onDatasetChanged]
   );
+
+  const loadDatasets = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await api.getDatasets();
+      setDatasets(data);
+      const isExplicitEmpty = new URLSearchParams(window.location.search).get('empty') === 'true';
+      if (data.length > 0 && !isExplicitEmpty) {
+        selectDataset(data[0].id);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to fetch datasets';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectDataset]);
 
   const clearActiveDataset = useCallback(() => {
     setActiveDataset(null);

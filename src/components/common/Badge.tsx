@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'tint' | 'outline' | 'success' | 'warning' | 'error' | 'destructive' | 'mock';
+  variant?: 'default' | 'primary' | 'tint' | 'outline' | 'success' | 'warning' | 'error' | 'destructive' | 'mock' | 'coming-soon';
   size?: 'sm' | 'md';
   icon?: React.ReactNode;
   className?: string;
@@ -23,8 +23,8 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    default: 'bg-card text-main border border-border',
-    primary: 'bg-primary text-primary-text font-semibold',
+    default: 'bg-card text-main border border-border shadow-sm',
+    primary: 'bg-primary text-primary-text font-semibold shadow-sm',
     tint: 'bg-primary-tint text-primary border border-primary/30',
     outline: 'bg-transparent text-main border border-border',
     success: 'bg-primary-tint text-primary border border-primary/30',
@@ -32,6 +32,7 @@ export const Badge: React.FC<BadgeProps> = ({
     error: 'bg-error/15 text-error border border-error/40 font-semibold',
     destructive: 'bg-destructive/15 text-destructive border border-destructive/40 font-semibold',
     mock: 'bg-warning text-warning-text border border-warning font-semibold tracking-normal text-caption',
+    'coming-soon': 'bg-primary-tint text-primary border border-primary/40 font-medium text-caption',
   };
 
   return (

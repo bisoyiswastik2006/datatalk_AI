@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -56,7 +56,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       <div
         ref={modalRef}
-        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-card border border-border rounded-lg shadow-sm flex flex-col max-h-[90vh] overflow-hidden z-10`}
+        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-card border border-border rounded-2xl shadow-card flex flex-col max-h-[90vh] overflow-hidden z-10`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card shrink-0 min-h-[56px]">
           <h2 id="modal-title" className="text-title-card font-semibold text-main leading-tight">

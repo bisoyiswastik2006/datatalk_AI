@@ -1,27 +1,26 @@
-import { useState, useEffect } from 'react';
-import { ThemeProvider, useTheme, Theme } from './context/ThemeContext';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './components/common/Toast';
 import { DatasetProvider, useDataset } from './context/DatasetContext';
-import { QueryProvider, useQuery, QueryFlowState } from './context/QueryContext';
+import { QueryProvider } from './context/QueryContext';
 import { AppShell } from './components/layout/AppShell';
-import { WorkbenchView } from './components/layout/Sidebar';
-import { UploadZone } from './components/dataset/UploadZone';
+import { LandingPage } from './pages/landing/LandingPage';
+import { OverviewPage } from './pages/app/OverviewPage';
+import { DatasetExplorerPage } from './pages/app/DatasetExplorerPage';
+import { AskYourDataPage } from './pages/app/AskYourDataPage';
+import { ReportsPage } from './pages/app/ReportsPage';
+import { SettingsPage } from './pages/app/SettingsPage';
+import { ComingSoonPage } from './pages/app/ComingSoonPage';
 import { DatasetPreviewModal } from './components/dataset/DatasetPreviewModal';
 import { DatasetSwitcher } from './components/dataset/DatasetSwitcher';
-import { QueryStudio } from './components/query/QueryStudio';
-import { AssistantPanel } from './components/assistant/AssistantPanel';
-import { StateContainer } from './components/states/StateContainer';
-import { StateSelectorPill } from './components/states/StateSelectorPill';
-import { DataExplorerView } from './components/explorer/DataExplorerView';
-import { SchemaModelsView } from './components/schema/SchemaModelsView';
-import { SavedNotebooksView } from './components/notebooks/SavedNotebooksView';
-import { deriveSuggestedQuestions } from './utils/questions';
 import { config } from './config';
 import { DatasetDetail } from './types/dataset';
-import { api } from './services/api';
 import { MOCK_SCHEMAS, MOCK_PREVIEWS } from './services/mocks/mockData';
-import { Sparkles, ArrowRight } from 'lucide-react';
 
-function DataTalkApp() {
+// Wrapper component for authenticated /app routes with AppShell
+const AppLayout: React.FC = () => {
+  const location = useLocation();
   const {
     datasets,
     activeDataset,
@@ -32,228 +31,54 @@ function DataTalkApp() {
     refreshActivePreview,
   } = useDataset();
 
-  const {
-    state: queryState,
-    queryResult,
-    messages,
-    askQuestion,
-    resetQueryState,
-    setStateDirectly,
-  } = useQuery();
-
-  const { setTheme } = useTheme();
-
-  const [currentView, setCurrentView] = useState<WorkbenchView>('query-studio');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
   const [pendingPreviewDataset, setPendingPreviewDataset] = useState<DatasetDetail | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Handle initial URL parameters for screenshot verification or direct linking
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const themeParam = params.get('theme');
-    if (themeParam === 'light' || themeParam === 'dark') {
-      setTheme(themeParam as Theme);
-    }
-
-    const viewParam = params.get('view');
-    if (viewParam === 'results') {
-      selectDataset('dataset-retail-01').then(() => {
-        askQuestion('Compare regional revenue for Q3 2024 and rank by highest sales.', 'dataset-retail-01');
-      });
-    } else if (viewParam === 'preview') {
-      api.getDataset('dataset-excel-02').then((detail) => {
-        setPendingPreviewDataset(detail);
-        selectDataset('dataset-excel-02');
-      });
-    } else if (viewParam === 'error') {
-      selectDataset('dataset-retail-01').then(() => {
-        setStateDirectly('rejected');
-      });
-    }
-  }, []);
-
-  // Derive suggested questions dynamically from the active schema
-  const suggestedQuestions = deriveSuggestedQuestions(activeSchema);
-
-  // Handle uploading file
-  const handleFileSelected = async (file: File) => {
-    try {
-      setIsUploading(true);
-      setUploadError(null);
-      const res = await api.uploadDataset(file);
-      const detail = await api.getDataset(res.dataset_id);
-      // Open preview modal for confirmation
-      setPendingPreviewDataset(detail);
-      await selectDataset(detail.id);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Upload failed';
-      setUploadError(msg);
-    } finally {
-      setIsUploading(false);
-    }
+  // Compute page title from route path
+  const getPageTitle = (path: string) => {
+    if (path.includes('/app/datasets')) return 'Dataset Explorer';
+    if (path.includes('/app/ask')) return 'Ask Your Data';
+    if (path.includes('/app/reports')) return 'Reports & Summaries';
+    if (path.includes('/app/settings')) return 'Settings';
+    if (path.includes('/app/insights')) return 'AI Insights Studio';
+    if (path.includes('/app/simulator')) return 'What-If Simulator';
+    if (path.includes('/app/predictive')) return 'Predictive Analytics';
+    return 'Overview';
   };
 
-  // Handle quick start template selection
-  const handleSelectQuickStart = async (datasetId: string) => {
-    await selectDataset(datasetId);
-  };
-
-  // Confirm using the dataset from preview modal
-  const handleConfirmDataset = () => {
-    setPendingPreviewDataset(null);
-    setIsUploadModalOpen(false);
-  };
-
-  const handleSelectStateDemo = (targetState: QueryFlowState) => {
-    setStateDirectly(targetState);
-  };
+  const pageTitle = getPageTitle(location.pathname);
 
   return (
     <>
       <AppShell
-        topBarProps={{
-          activeDatasetName: activeDataset?.name || null,
-          activeDatasetSize: activeDataset?.formatted_size || null,
-          systemStatus: activeDataset ? 'System ready' : null,
-          latencyMs: queryResult?.execution_ms ?? (activeDataset ? 38 : null),
-          schemaVerified: activeSchema?.verified ?? null,
-          isMockMode: config.useMocks,
-          onOpenUpload: () => setIsUploadModalOpen(true),
-          onOpenSwitcher: () => setIsSwitcherOpen(true),
-        }}
-        currentView={currentView}
-        onViewChange={setCurrentView}
+        pageTitle={pageTitle}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        activeDatasetName={activeDataset?.name || null}
+        activeDatasetSize={activeDataset?.formatted_size || null}
+        isMockMode={config.useMocks}
+        onOpenUpload={() => setIsUploadModalOpen(true)}
+        onOpenSwitcher={() => setIsSwitcherOpen(true)}
         engineName={activeDataset?.metadata?.engine || null}
         memoryUsage={
           activeDataset?.metadata?.memory_mb
             ? `${(activeDataset.metadata.memory_mb / 1024).toFixed(1)} GB / 4 GB`
             : null
         }
-        assistantPanel={
-          <AssistantPanel
-            datasetName={activeDataset?.name || null}
-            datasetRows={activeDataset?.total_rows || null}
-            messages={messages}
-            suggestedQuestions={suggestedQuestions}
-            isProcessing={queryState === 'generating_sql' || queryState === 'executing'}
-            isDisabled={!activeDataset}
-            onSendMessage={(q) => {
-              if (activeDataset) {
-                askQuestion(q, activeDataset.id);
-              }
-            }}
-            onResetChat={resetQueryState}
-          />
-        }
       >
-        {/* State Demo Selector Pill positioned in top right of workspace */}
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="text-caption font-mono text-secondary">
-            {activeDataset ? (
-              <span className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block" />
-                Active: <span className="font-semibold text-main">{activeDataset.name}</span>
-              </span>
-            ) : (
-              <span>No dataset loaded</span>
-            )}
-          </div>
-          <StateSelectorPill
-            currentState={queryState}
-            onSelectState={handleSelectStateDemo}
-          />
-        </div>
-
-        {/* Dynamic Workspace Content depending on dataset and query states */}
-        {!activeDataset ? (
-          /* Empty State: Upload Zone */
-          <div className="flex-1 flex flex-col justify-center">
-            <UploadZone
-              onFileSelected={handleFileSelected}
-              onSelectQuickStart={handleSelectQuickStart}
-              isUploading={isUploading}
-              uploadError={uploadError}
-            />
-          </div>
-        ) : currentView === 'data-explorer' ? (
-          <DataExplorerView
-            dataset={activeDataset}
-            preview={activePreview}
-            onSelectTable={refreshActivePreview}
-          />
-        ) : currentView === 'schema-models' ? (
-          <SchemaModelsView
-            dataset={activeDataset}
-            schema={activeSchema}
-          />
-        ) : currentView === 'saved-notebooks' ? (
-          <SavedNotebooksView
-            dataset={activeDataset}
-            messages={messages}
-            onRerunQuery={(q) => {
-              setCurrentView('query-studio');
-              askQuestion(q, activeDataset.id);
-            }}
-          />
-        ) : queryState === 'results' && queryResult ? (
-          /* Results State: Synthesized Answer, SQL Viewer, Result Table, Chart */
-          <QueryStudio queryResponse={queryResult} />
-        ) : queryState !== 'idle' ? (
-          /* Specific Error and Progress States */
-          <div className="flex-1 flex items-center justify-center p-6">
-            <StateContainer
-              stateType={queryState as any}
-              errorMessage={queryResult?.message || undefined}
-              clarificationOptions={queryResult?.clarification_options}
-              suggestedAlternatives={queryResult?.suggested_alternatives}
-              onRetry={() => {
-                if (activeDataset) {
-                  askQuestion('Compare regional revenue for Q3 2024 and rank by highest sales.', activeDataset.id);
-                }
-              }}
-              onUploadNew={() => setIsUploadModalOpen(true)}
-              onSelectOption={(opt) => {
-                if (activeDataset) {
-                  askQuestion(opt, activeDataset.id);
-                }
-              }}
-              onRephrase={() => setStateDirectly('idle')}
-            />
-          </div>
-        ) : (
-          /* Ready State: Dataset Loaded, waiting for query */
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-8 max-w-xl mx-auto space-y-4">
-            <div className="w-14 h-14 rounded-lg bg-page border border-border flex items-center justify-center text-primary">
-              <Sparkles className="w-7 h-7" aria-hidden="true" />
-            </div>
-            <div className="space-y-1.5">
-              <h2 className="text-title-card font-semibold text-main">
-                {activeDataset.name} is ready for queries
-              </h2>
-              <p className="text-body text-secondary leading-relaxed max-w-md">
-                Ask any natural language question about {activeDataset.name} in the assistant panel on the right, or pick one of the schema-derived questions below:
-              </p>
-            </div>
-
-            {suggestedQuestions.length > 0 && (
-              <div className="w-full space-y-2.5 pt-2 text-left">
-                {suggestedQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => askQuestion(q, activeDataset.id)}
-                    className="w-full min-h-[46px] p-3.5 rounded-lg bg-card border border-border hover:border-primary text-control text-main transition-colors cursor-pointer flex items-center justify-between group shadow-sm"
-                  >
-                    <span>{q}</span>
-                    <ArrowRight className="w-4 h-4 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        <Routes>
+          <Route path="/" element={<OverviewPage />} />
+          <Route path="datasets" element={<DatasetExplorerPage />} />
+          <Route path="ask" element={<AskYourDataPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="insights" element={<ComingSoonPage feature="insights" />} />
+          <Route path="simulator" element={<ComingSoonPage feature="simulator" />} />
+          <Route path="predictive" element={<ComingSoonPage feature="predictive" />} />
+          <Route path="*" element={<Navigate to="/app" replace />} />
+        </Routes>
       </AppShell>
 
       {/* Dataset Preview Modal */}
@@ -267,7 +92,10 @@ function DataTalkApp() {
           dataset={pendingPreviewDataset || activeDataset!}
           schema={activeSchema || (pendingPreviewDataset ? MOCK_SCHEMAS[pendingPreviewDataset.id] : null)}
           preview={activePreview || (pendingPreviewDataset ? MOCK_PREVIEWS[pendingPreviewDataset.id] : null)}
-          onConfirm={handleConfirmDataset}
+          onConfirm={() => {
+            setPendingPreviewDataset(null);
+            setIsUploadModalOpen(false);
+          }}
           onSelectTable={(table) => refreshActivePreview(table)}
         />
       )}
@@ -284,16 +112,29 @@ function DataTalkApp() {
       />
     </>
   );
-}
+};
 
 export function App() {
   return (
     <ThemeProvider>
-      <DatasetProvider>
-        <QueryProvider>
-          <DataTalkApp />
-        </QueryProvider>
-      </DatasetProvider>
+      <ToastProvider>
+        <DatasetProvider>
+          <QueryProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Landing Page */}
+                <Route path="/" element={<LandingPage />} />
+
+                {/* Application Dashboard */}
+                <Route path="/app/*" element={<AppLayout />} />
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </QueryProvider>
+        </DatasetProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
