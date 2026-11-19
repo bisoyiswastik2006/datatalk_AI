@@ -1,0 +1,9 @@
+streamlit
+pandas
+sqlalchemy
+pymysql
+python-dotenv
+sqlglot
+openpyxl
+plotly
+groq

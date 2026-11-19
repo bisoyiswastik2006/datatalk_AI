@@ -1,32 +1,22 @@
-# Logs
-logs
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend
+backend/venv/
+backend/.env
+backend/__pycache__/
+backend/.pytest_cache/
+backend/*.pyc
+
+# General
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Diagnostic reports
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Dependencies
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Environment
-.env.local
-.env.*.local
+.vscode/
+.idea/
+# Python cache
+__pycache__/
+*.py[cod]
